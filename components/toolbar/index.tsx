@@ -4,13 +4,18 @@ import { ActiveElement } from "@/types/types";
 
 import { defaultNavElement } from "@/constants";
 import { useEffect } from "react";
+import ColorPicker from "./color-picker";
 
 type ToolbarProps = {
+  lastUsedColor: string;
+  setLastUsedColor: (color: string) => void;
   activeElement: ActiveElement;
   handleActiveElement: (element: ActiveElement) => void;
 };
 
 export default function Toolbar({
+  lastUsedColor,
+  setLastUsedColor,
   handleActiveElement,
   activeElement,
 }: ToolbarProps) {
@@ -50,6 +55,12 @@ export default function Toolbar({
             </Button>
           </li>
         ))}
+        <li>
+          <ColorPicker
+            lastUsedColor={lastUsedColor}
+            setLastUsedColor={setLastUsedColor}
+          />
+        </li>
       </ul>
     </div>
   );

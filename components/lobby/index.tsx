@@ -1,30 +1,18 @@
 "use client";
-import {
-  Presence,
-  UserMeta,
-  useMutation,
-  useMyPresence,
-  useOthers,
-  useSelf,
-} from "@/liveblocks.config";
+import { Presence, UserMeta, useOthers, useSelf } from "@/liveblocks.config";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { User } from "@liveblocks/client";
 import { COLORS } from "@/constants";
+import Player from "./player";
+
+export type Player = User<Presence, UserMeta>;
 
 export default function Lobby() {
   const self = useSelf();
   const others = useOthers();
-  // const assignPlayerColor = useAssignPlayerColor();
 
-  // // Assign color when component mounts
-  // useEffect(() => {
-  //   if (self) {
-  //     assignPlayerColor();
-  //   }
-  // }, [self, assignPlayerColor]);
-
-  const allPlayers = useMemo(() => {
+  const allPlayers: Player[] = useMemo(() => {
     const playerMap = new Map();
     if (self) playerMap.set(self.id, self);
     others.forEach((player) => playerMap.set(player.id, player));
@@ -40,19 +28,11 @@ export default function Lobby() {
         {allPlayers && (
           <ul className="space-y-1">
             {allPlayers.map((player) => (
-              <li
-                className={`font-semibold text-sm p-2 rounded-md`}
-                key={player.connectionId}
-                style={{
-                  backgroundColor: `${player.presence.color}20`,
-                  borderColor: player.presence.color,
-                  color: player.presence.color,
-                  borderWidth: "1px",
-                  borderStyle: "solid",
-                }}
-              >
-                {player.info?.username}
-              </li>
+              <Player
+                key={player.id}
+                color={COLORS[player.connectionId % COLORS.length]}
+                username={player.info?.username}
+              />
             ))}
           </ul>
         )}

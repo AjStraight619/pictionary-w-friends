@@ -6,9 +6,10 @@ import {
   handleCanvasMouseDown,
   handlePathCreated,
   handleResize,
+  handleCanvasMouseUp,
+  handleCanvaseMouseMove,
 } from "@/lib/canvas2";
 import Toolbar from "../toolbar";
-import { handleCanvasMouseUp, handleCanvaseMouseMove } from "@/lib/canvas";
 import { ActiveElement } from "@/types/types";
 import { defaultNavElement } from "@/constants";
 
@@ -26,7 +27,7 @@ export default function Canvas() {
 
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([]);
 
-  const [lastUsedColor, setLastUsedColor] = useState("");
+  const [lastUsedColor, setLastUsedColor] = useState("#000000");
 
   const [activeElement, setActiveElement] = useState<ActiveElement>({
     name: "",
@@ -206,6 +207,12 @@ export default function Canvas() {
     };
   }, [canvasRef, syncShapeInStorage]);
 
+  useEffect(() => {
+    if (fabricRef.current) {
+      fabricRef.current.freeDrawingBrush.color = lastUsedColor;
+    }
+  }, [lastUsedColor]);
+
   const deleteSelectedObjects = () => {
     if (fabricRef.current) {
       fabricRef.current.getActiveObjects().forEach((obj) => {
@@ -226,6 +233,8 @@ export default function Canvas() {
     >
       <canvas ref={canvasRef} className="rounded-md" />
       <Toolbar
+        lastUsedColor={lastUsedColor}
+        setLastUsedColor={setLastUsedColor}
         handleActiveElement={handleActiveElement}
         activeElement={activeElement}
       />
