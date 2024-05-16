@@ -1,4 +1,3 @@
-import { User, currentUser } from "@clerk/nextjs/server";
 import { Liveblocks } from "@liveblocks/node";
 
 const liveblocks = new Liveblocks({

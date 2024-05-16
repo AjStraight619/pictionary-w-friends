@@ -1,9 +1,13 @@
-import { createClient } from "@liveblocks/client";
+import { LiveMap, createClient } from "@liveblocks/client";
 import { createRoomContext, createLiveblocksContext } from "@liveblocks/react";
+import { Cursor } from "./types/types";
 
 const client = createClient({
   authEndpoint: "/api/liveblocks-auth",
   throttle: 16,
+  backgroundKeepAliveTimeout: 15 * 60 * 1000,
+  lostConnectionTimeout: 5000,
+
   async resolveUsers({ userIds }) {
     // Used only for Comments and Notifications. Return a list of user information
     // retrieved from `userIds`. This info is used in comments, mentions etc.
@@ -49,9 +53,12 @@ const client = createClient({
 // Presence represents the properties that exist on every user in the Room
 // and that will automatically be kept in sync. Accessible through the
 // `user.presence` property. Must be JSON-serializable.
-type Presence = {
-  // cursor: { x: number, y: number } | null,
-  // ...
+export type Presence = {
+  cursor: Cursor | null;
+  isDrawing: boolean;
+  hasHadTurn: boolean;
+  color: string | null;
+  penColor: string | null;
 };
 
 // Optionally, Storage represents the shared document that persists in the
@@ -61,14 +68,19 @@ type Presence = {
 type Storage = {
   // author: LiveObject<{ firstName: string, lastName: string }>,
   // ...
+  // playerColors: LiveMap<string, string>;
+  canvasObjects: LiveMap<string, any>;
+  scores: LiveMap<string, number>;
 };
 
 // Optionally, UserMeta represents static/readonly metadata on each user, as
 // provided by your own custom auth back end (if used). Useful for data that
 // will not change during a session, like a user's name or avatar.
-type UserMeta = {
-  // id?: string,  // Accessible through `user.id`
-  // info?: Json,  // Accessible through `user.info`
+export type UserMeta = {
+  id?: string;
+  info?: {
+    username: string;
+  };
 };
 
 // Optionally, the type of custom events broadcast and listened to in this
