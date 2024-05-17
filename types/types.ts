@@ -1,12 +1,19 @@
 import { BaseUserMeta, User } from "@liveblocks/client";
 import { Gradient, Pattern } from "fabric/fabric-impl";
 
+export type WordDifficulty = "easy" | "medium" | "hard";
+
 export enum CursorMode {
   Hidden,
   Chat,
   ReactionSelector,
   Reaction,
 }
+
+export type Word = {
+  currentWord: string;
+  wordDifficulty: WordDifficulty;
+};
 
 export type Cursor = {
   x: number;
