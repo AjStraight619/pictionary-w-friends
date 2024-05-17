@@ -1,4 +1,6 @@
 import { Liveblocks } from "@liveblocks/node";
+import { redirect } from "next/navigation";
+import { User, auth, currentUser } from "@clerk/nextjs/server";
 
 const liveblocks = new Liveblocks({
   secret: process.env.LIVEBLOCKS_SECRET_KEY!,
@@ -10,10 +12,22 @@ export async function POST(request: Request) {
 
   //   console.log("user in lb api: ", user.firstName);
 
+  const userSession = auth();
+
+  const curUser = (await currentUser()) as User;
+
   const user = generateTestUser();
+
+  const userInfo = {
+    id: curUser.id,
+    info: {
+      id: curUser.id,
+      username: curUser.firstName,
+    },
+  };
   // Start an auth session inside your endpoint
   const session = liveblocks.prepareSession(
-    user.id,
+    curUser.id,
     { userInfo: user.info } // Optional
   );
 

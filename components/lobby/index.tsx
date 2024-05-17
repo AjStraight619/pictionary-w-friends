@@ -5,12 +5,17 @@ import { useMemo } from "react";
 import { User } from "@liveblocks/client";
 import { COLORS } from "@/constants";
 import Player from "./player";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 export type Player = User<Presence, UserMeta>;
 
 export default function Lobby() {
   const self = useSelf();
   const others = useOthers();
+
+
+
+
 
   const allPlayers: Player[] = useMemo(() => {
     const playerMap = new Map();

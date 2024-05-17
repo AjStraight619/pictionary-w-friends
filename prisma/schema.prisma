@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id                String       @id @unique
+  name              String
+  username          String?      @unique
+  avatar            String?
+  isProfileComplete Boolean
+  leaderboard       LeaderBoard?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  room              Room[]
+}
+
+model Room {
+  id         String   @id @default(cuid())
+  name       String
+  isOpen     OpenRoom
+  numPlayers Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  playerId   String
+  player     Player   @relation(fields: [playerId], references: [id])
+}
+
+model LeaderBoard {
+  id                   String   @id @default(cuid())
+  playerId             String   @unique
+  totalScore           Int
+  totalRoundsPlayed    Int
+  averageScorePerRound Int
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  player               Player   @relation(fields: [playerId], references: [id])
+}
+
+enum OpenRoom {
+  yes
+  no
+}
