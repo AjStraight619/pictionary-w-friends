@@ -1,6 +1,18 @@
-import { LiveMap, LiveObject, createClient } from "@liveblocks/client";
+import {
+  LiveList,
+  LiveMap,
+  LiveObject,
+  createClient,
+} from "@liveblocks/client";
 import { createRoomContext, createLiveblocksContext } from "@liveblocks/react";
-import { Cursor, Word } from "./types/types";
+import {
+  Cursor,
+  Message,
+  PlayerColor,
+  Round,
+  UserState,
+  Word,
+} from "./types/types";
 
 const client = createClient({
   authEndpoint: "/api/liveblocks-auth",
@@ -71,7 +83,9 @@ type Storage = {
   // playerColors: LiveMap<string, string>;
   canvasObjects: LiveMap<string, any>;
   scores: LiveMap<string, number>;
-  word: LiveObject<Word>;
+  round: LiveObject<Round>;
+  messages: LiveList<LiveObject<Message>>;
+  playerStates: LiveMap<string, LiveObject<UserState>>;
 };
 
 // Optionally, UserMeta represents static/readonly metadata on each user, as

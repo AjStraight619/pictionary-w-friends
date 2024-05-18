@@ -15,6 +15,34 @@ export type Word = {
   wordDifficulty: WordDifficulty;
 };
 
+export type Message = {
+  id: string;
+  userId: string;
+  username: string;
+  content: string;
+  isCorrect: boolean;
+  isClose: boolean;
+};
+
+export type Round = {
+  word: Word;
+  currentRound: number;
+  roundLimit: number;
+};
+
+export type UserState = {
+  id: string;
+  isDrawing: boolean;
+  score: number;
+  color: string;
+  timeJoined: number;
+};
+
+export type PlayerColor = {
+  userId: string;
+  color: string;
+};
+
 export type Cursor = {
   x: number;
   y: number;

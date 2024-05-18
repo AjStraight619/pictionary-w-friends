@@ -1,35 +1,35 @@
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { useEffect } from "react";
+import { useSelf, useStorage } from "@/liveblocks.config";
 
 type PlayerProps = {
   username: string | undefined;
-  color: string;
+  userId: string | undefined;
+  connectionId: number;
+  idx: number;
 };
 
-export default function Player({ username, color }: PlayerProps) {
-  const [storedColor, setColor, removeColor] = useLocalStorage('playerColor', color)
-
-  useEffect(() => {
-
-    if (!storedColor) {
-      setColor(color);
-    }
-  }, [storedColor, color, setColor]);
-
-
+export default function Player({
+  username,
+  userId,
+  connectionId,
+  idx,
+}: PlayerProps) {
+  const playerState = useStorage((root) => root.playerStates.get(userId ?? ""));
+  const self = useSelf();
 
   return (
     <li
       className="font-semibold text-sm p-2 rounded-md"
       style={{
-        backgroundColor: `${storedColor}20`,
-        borderColor: storedColor,
-        color: storedColor,
+        backgroundColor: `${playerState?.color}20`,
+        borderColor: playerState?.color ?? "",
+        color: playerState?.color ?? "",
         borderWidth: "1px",
         borderStyle: "solid",
       }}
     >
-      {username}
+      <span>{username}</span>
+      <span className="ml-1">{idx}</span>
+      {self && <span className="ml-1">You</span>}
     </li>
   );
 }

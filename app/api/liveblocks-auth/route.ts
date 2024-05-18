@@ -12,11 +12,9 @@ export async function POST(request: Request) {
 
   //   console.log("user in lb api: ", user.firstName);
 
-  const userSession = auth();
-
   const curUser = (await currentUser()) as User;
 
-  const user = generateTestUser();
+  // const user = generateTestUser();
 
   const userInfo = {
     id: curUser.id,
@@ -28,7 +26,7 @@ export async function POST(request: Request) {
   // Start an auth session inside your endpoint
   const session = liveblocks.prepareSession(
     curUser.id,
-    { userInfo: user.info } // Optional
+    { userInfo: userInfo.info } // Optional
   );
 
   // Use a naming pattern to allow access to rooms with wildcards
