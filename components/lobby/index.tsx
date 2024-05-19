@@ -5,6 +5,7 @@ import {
   useMutation,
   useOthers,
   useSelf,
+  useStorage,
 } from "@/liveblocks.config";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { useEffect, useMemo } from "react";
@@ -27,6 +28,8 @@ const assignUniqueColor = (assignedColors: Set<string>) => {
 export default function Lobby() {
   const self = useSelf();
   const others = useOthers();
+
+  const playerStates = useStorage((root) => root.playerStates);
 
   const assignPlayerState = useMutation(({ storage, self }) => {
     const playerStates = storage.get("playerStates");
@@ -67,7 +70,7 @@ export default function Lobby() {
   }, [others, self]);
 
   return (
-    <Card>
+    <Card className="select-none">
       <CardHeader>
         <CardTitle>Players</CardTitle>
       </CardHeader>

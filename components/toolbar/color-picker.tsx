@@ -14,7 +14,7 @@ export default function ColorPicker({
 }: ColorPickerProps) {
   return (
     <Popover>
-      <PopoverTrigger>
+      <PopoverTrigger asChild>
         <Button size="icon">
           <PaletteIcon size={20} />
         </Button>

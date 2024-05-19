@@ -57,8 +57,7 @@ export default function Words() {
             <span style={{ lineHeight: 0 }}>
               {char !== " " ? char.toUpperCase() : <span>&nbsp;</span>}
             </span>
-
-            <span>__</span>
+            {char !== " " && <span>__</span>}
           </div>
         ))}
         <Button className="ml-2">Reveal Indices</Button>
@@ -82,9 +81,7 @@ export default function Words() {
                 <span>&nbsp;</span>
               )}
             </span>
-            <div className="">
-              <span>__</span>
-            </div>
+            {char !== " " && <span>__</span>}
           </div>
         ))}
         <Button className="ml-2">Reveal Indices</Button>
