@@ -74,3 +74,10 @@ export type CanvasMouseDown = {
   isDrawing: React.MutableRefObject<boolean>;
   shapeRef: React.MutableRefObject<fabric.Object | null>;
 };
+
+export type CanvasSelection = {
+  canvas: fabric.Canvas;
+  activeObjects: fabric.Object[];
+  syncShapeInStorage: (shape: fabric.Object) => void;
+  lastUsedColor: string;
+};

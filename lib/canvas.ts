@@ -44,6 +44,8 @@ export const handleCanvasMouseDown = ({
   selectedShapeRef,
   isDrawing,
   shapeRef,
+  lastUsedColor,
+  strokeWidth,
 }: CanvasMouseDown) => {
   // get pointer coordinates
   const pointer = canvas.getPointer(options.e);
@@ -63,7 +65,7 @@ export const handleCanvasMouseDown = ({
   if (selectedShapeRef.current === "freeform") {
     isDrawing.current = true;
     canvas.isDrawingMode = true;
-    canvas.freeDrawingBrush.width = 5;
+    canvas.freeDrawingBrush.width = strokeWidth;
 
     return;
   }
@@ -91,6 +93,7 @@ export const handleCanvasMouseDown = ({
 
     // create custom fabric object/shape and set it to shapeRef
     shapeRef.current = createSpecificShape(
+      lastUsedColor,
       selectedShapeRef.current,
       pointer as any
     );
@@ -150,12 +153,6 @@ export const handleCanvaseMouseMove = ({
         y2: pointer.y,
       });
       break;
-
-    case "image":
-      shapeRef.current?.set({
-        width: pointer.x - (shapeRef.current?.left || 0),
-        height: pointer.y - (shapeRef.current?.top || 0),
-      });
 
     default:
       break;
@@ -393,31 +390,4 @@ export const handleResize = ({ canvas }: { canvas: fabric.Canvas | null }) => {
     width: canvasElement.clientWidth,
     height: canvasElement.clientHeight,
   });
-};
-
-// zoom canvas on mouse scroll
-export const handleCanvasZoom = ({
-  options,
-  canvas,
-}: {
-  options: fabric.IEvent & { e: WheelEvent };
-  canvas: fabric.Canvas;
-}) => {
-  const delta = options.e?.deltaY;
-  let zoom = canvas.getZoom();
-
-  // allow zooming to min 20% and max 100%
-  const minZoom = 0.2;
-  const maxZoom = 1;
-  const zoomStep = 0.001;
-
-  // calculate zoom based on mouse scroll wheel with min and max zoom
-  zoom = Math.min(Math.max(minZoom, zoom + delta * zoomStep), maxZoom);
-
-  // set zoom to canvas
-  // zoomToPoint: http://fabricjs.com/docs/fabric.Canvas.html#zoomToPoint
-  canvas.zoomToPoint({ x: options.e.offsetX, y: options.e.offsetY }, zoom);
-
-  options.e.preventDefault();
-  options.e.stopPropagation();
 };

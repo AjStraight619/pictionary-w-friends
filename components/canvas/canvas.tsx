@@ -2,16 +2,28 @@
 import { useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
 import { useMutation, useOthersMapped, useStorage } from "@/liveblocks.config";
+// import {
+//   handleCanvasMouseDown,
+//   handlePathCreated,
+//   handleResize,
+//   handleCanvasMouseUp,
+//   handleCanvaseMouseMove,
+//   handleSelection,
+// } from "@/lib/canvas2";
+import Toolbar from "../toolbar";
+import { ActiveElement, Attributes } from "@/types/types";
+import { defaultNavElement } from "@/constants";
 import {
   handleCanvasMouseDown,
+  handleCanvasMouseUp,
+  handleCanvasObjectModified,
+  handleCanvasSelectionCreated,
+  handleCanvaseMouseMove,
   handlePathCreated,
   handleResize,
-  handleCanvasMouseUp,
-  handleCanvaseMouseMove,
-} from "@/lib/canvas2";
-import Toolbar from "../toolbar";
-import { ActiveElement } from "@/types/types";
-import { defaultNavElement } from "@/constants";
+  initializeFabric,
+  renderCanvas,
+} from "@/lib/canvas";
 
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -26,6 +38,10 @@ export default function Canvas() {
   const isEditingRef = useRef(false);
 
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([]);
+  const [isFloatingToolbarVisible, setIsFloatingToolbarVisible] =
+    useState(false);
+
+  const [strokeWidth, setStrokeWidth] = useState(5);
 
   const [lastUsedColor, setLastUsedColor] = useState("#000000");
 
@@ -42,7 +58,52 @@ export default function Canvas() {
 
   const canvasObjects = useStorage((root) => root.canvasObjects);
 
-  const syncShapeInStorage = useMutation(() => {}, []);
+  const syncShapeInStorage = useMutation(({ storage }, object) => {
+    // if the passed object is null, return
+    if (!object) return;
+    const { objectId } = object;
+
+    /**
+     * Turn Fabric object (kclass) into JSON format so that we can store it in the
+     * key-value store.
+     */
+    const shapeData = object.toJSON();
+    shapeData.objectId = objectId;
+
+    const canvasObjects = storage.get("canvasObjects");
+
+    canvasObjects.set(objectId, shapeData);
+  }, []);
+
+  const deleteShapeFromStorage = useMutation(({ storage }, shapeId) => {
+    const canvasObjects = storage.get("canvasObjects");
+    canvasObjects.delete(shapeId);
+  }, []);
+
+  const [elementAttributes, setElementAttributes] = useState<Attributes>({
+    width: "",
+    height: "",
+    fontSize: "",
+    fontFamily: "",
+    fontWeight: "",
+    fill: "#aabbcc",
+    stroke: "#aabbcc",
+  });
+
+  const updateSelectedObjectsColor = (color: string) => {
+    if (fabricRef.current) {
+      const selectedObjects = fabricRef.current.getActiveObjects();
+      selectedObjects.forEach((obj) => {
+        if (obj instanceof fabric.Path) {
+          obj.set("stroke", color);
+        } else {
+          obj.set("fill", color);
+          obj.set("stroke", color);
+        }
+      });
+      fabricRef.current.renderAll();
+    }
+  };
 
   const handleActiveElement = (elem: ActiveElement) => {
     setActiveElement(elem);
@@ -98,28 +159,6 @@ export default function Canvas() {
     }
   };
 
-  const initializeFabric = ({
-    fabricRef,
-    canvasRef,
-  }: {
-    fabricRef: React.MutableRefObject<fabric.Canvas | null>;
-    canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
-  }) => {
-    // get canvas element
-    const canvasElement = document.getElementById("canvas");
-
-    // create fabric canvas
-    const canvas = new fabric.Canvas(canvasRef.current, {
-      width: canvasElement?.clientWidth,
-      height: canvasElement?.clientHeight,
-    });
-
-    // set canvas reference to fabricRef so we can use it later anywhere outside canvas listener
-    fabricRef.current = canvas;
-
-    return canvas;
-  };
-
   useEffect(() => {
     const canvas = initializeFabric({
       fabricRef,
@@ -133,6 +172,7 @@ export default function Canvas() {
         isDrawing,
         selectedShapeRef,
         shapeRef,
+        lastUsedColor,
       });
     });
 
@@ -168,8 +208,18 @@ export default function Canvas() {
 
     // ! TODO: Extend this to adjust the attributes with floating toolbar
     canvas.on("selection:created", (options) => {
-      setSelectedObjects(canvas.getActiveObjects());
-      console.log("selection created", canvas.getActiveObjects());
+      handleCanvasSelectionCreated({
+        options,
+        isEditingRef,
+        setElementAttributes,
+      });
+    });
+
+    canvas.on("object:modified", (options) => {
+      handleCanvasObjectModified({
+        options,
+        syncShapeInStorage,
+      });
     });
 
     canvas.on("selection:cleared", () => {
@@ -210,6 +260,7 @@ export default function Canvas() {
   useEffect(() => {
     if (fabricRef.current) {
       fabricRef.current.freeDrawingBrush.color = lastUsedColor;
+      updateSelectedObjectsColor(lastUsedColor);
     }
   }, [lastUsedColor]);
 
@@ -223,6 +274,14 @@ export default function Canvas() {
     }
   };
 
+  useEffect(() => {
+    renderCanvas({
+      fabricRef,
+      canvasObjects,
+      activeObjectRef,
+    });
+  }, [canvasObjects]);
+
   const onPointerMove = useMutation(({ setMyPresence, self }) => {}, []);
 
   return (
@@ -233,6 +292,8 @@ export default function Canvas() {
     >
       <canvas ref={canvasRef} className="rounded-md" />
       <Toolbar
+        strokeWidth={strokeWidth}
+        setStrokeWidth={setStrokeWidth}
         lastUsedColor={lastUsedColor}
         setLastUsedColor={setLastUsedColor}
         handleActiveElement={handleActiveElement}

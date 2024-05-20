@@ -53,34 +53,25 @@ export default function Chat() {
 
   const [testWord, setTestWord] = useState("TEST WORD");
 
-  // const [isUserCorrect, setIsUserCorrect] = useState(false);
-  // const [isUserClose, setIsUserClose] = useState(false);
-
   const bottomOfMessagesRef = useRef<HTMLDivElement>(null);
-
-  // const checkGuess = (message: string) => {
-  //   if ("TEST WORD" === message.toUpperCase()) {
-  //     // setIsUserCorrect(true);
-  //     return;
-  //   } else {
-  //     let correctChars = 0;
-  //     testWord.split("");
-  //     const charLength = testWord.length;
-  //     const closeGuess = charLength - 2;
-  //     message.split("").forEach((char, idx) => {
-  //       if (char.toUpperCase() === testWord[idx]) {
-  //         correctChars++;
-  //       }
-  //     });
-
-  //     if (correctChars >= closeGuess) {
-  //       // setIsUserClose(true);
-  //     }
-  //   }
-  // };
 
   const isCorrect = (message: string) => {
     return message.toUpperCase() === testWord;
+  };
+
+  const isCloseGuess = (message: string) => {
+    testWord.split("").forEach((char, idx) => {
+      if (message.toUpperCase()[idx]) {
+      }
+    });
+  };
+
+  const sliceEndOfWord = () => {
+    const slicedWord = testWord
+      .split("")
+      .slice(0, testWord.length - 2)
+      .join("");
+    console.log(slicedWord);
   };
 
   useEffect(() => {
@@ -100,7 +91,22 @@ export default function Chat() {
 
     const isCorrectGuess = isCorrect(message);
     const isCloseGuess =
-      !isCorrectGuess && testWord.startsWith(message.toUpperCase());
+      !isCorrectGuess &&
+      (() => {
+        const upperMessage = message.toUpperCase();
+        const upperTestWord = testWord.toUpperCase();
+
+        // Ensure the test word is long enough
+        if (upperTestWord.length <= 2) {
+          return false;
+        }
+
+        const partialTestWord = upperTestWord.slice(
+          0,
+          upperTestWord.length - 2
+        );
+        return upperMessage.includes(partialTestWord);
+      })();
 
     const newMessage = new LiveObject<Message>({
       id: nanoid(),
@@ -131,22 +137,23 @@ export default function Chat() {
   };
 
   return (
-    <Card className="max-w-[15rem] h-[20rem] flex flex-1 flex-col">
+    <Card className="w-[14rem] h-[20rem] flex flex-col">
       <CardHeader>
         <CardTitle>Chat</CardTitle>
         <Button onClick={clearMessages}>Clear</Button>
+        <Button onClick={sliceEndOfWord}>Slice</Button>
       </CardHeader>
       <ScrollArea>
-        <CardContent className="w-full h-full flex-1">
+        <CardContent className="">
           <motion.ul
             animate="show"
             initial="hidden"
             variants={containerVariants}
-            className="mt-auto px-2"
+            className="px-2 flex flex-col gap-y-1 w-full"
           >
             {messages.map((msg) => (
               <motion.li
-                className="text-wrap break-words"
+                className="text-wrap"
                 key={msg.id}
                 variants={messageVariants}
                 initial="hidden"
@@ -154,7 +161,7 @@ export default function Chat() {
               >
                 <span className="font-bold">{msg.username}:</span>{" "}
                 <span
-                  className={`text-wrap break-words ${
+                  className={` ${
                     userGuess.isCorrect && userGuess.messageId === msg.id
                       ? "text-green-500"
                       : userGuess.isClose && userGuess.messageId === msg.id
