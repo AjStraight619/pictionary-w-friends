@@ -170,8 +170,8 @@ export type CanvasMouseDown = {
   selectedShapeRef: any;
   isDrawing: React.MutableRefObject<boolean>;
   shapeRef: React.MutableRefObject<fabric.Object | null>;
-  lastUsedColor: string;
-  strokeWidth: number;
+  // lastUsedColor: string;
+  // strokeWidth: number;
 };
 
 export type CanvasMouseMove = {

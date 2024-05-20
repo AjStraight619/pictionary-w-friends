@@ -7,8 +7,8 @@ import { useEffect } from "react";
 import ColorPicker from "./color-picker";
 
 type ToolbarProps = {
-  strokeWidth: number;
-  setStrokeWidth: (strokeWidth: number) => void;
+  // strokeWidth: number;
+  // setStrokeWidth: (strokeWidth: number) => void;
   lastUsedColor: string;
   setLastUsedColor: (color: string) => void;
   activeElement: ActiveElement;
@@ -16,8 +16,8 @@ type ToolbarProps = {
 };
 
 export default function Toolbar({
-  strokeWidth,
-  setStrokeWidth,
+  // strokeWidth,
+  // setStrokeWidth,
   lastUsedColor,
   setLastUsedColor,
   handleActiveElement,

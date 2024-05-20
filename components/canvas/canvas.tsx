@@ -1,7 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
-import { useMutation, useOthersMapped, useStorage } from "@/liveblocks.config";
+import {
+  useMutation,
+  useOthersMapped,
+  useRedo,
+  useStorage,
+  useUndo,
+} from "@/liveblocks.config";
 // import {
 //   handleCanvasMouseDown,
 //   handlePathCreated,
@@ -24,6 +30,7 @@ import {
   initializeFabric,
   renderCanvas,
 } from "@/lib/canvas";
+import { handleKeyDown } from "@/lib/key-events";
 
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -36,6 +43,9 @@ export default function Canvas() {
 
   const activeObjectRef = useRef<fabric.Object | null>(null);
   const isEditingRef = useRef(false);
+
+  const undo = useUndo();
+  const redo = useRedo();
 
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([]);
   const [isFloatingToolbarVisible, setIsFloatingToolbarVisible] =
@@ -172,7 +182,8 @@ export default function Canvas() {
         isDrawing,
         selectedShapeRef,
         shapeRef,
-        lastUsedColor,
+        // lastUsedColor,
+        // strokeWidth,
       });
     });
 
@@ -238,13 +249,16 @@ export default function Canvas() {
       });
     });
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Backspace" || event.key === "Delete") {
-        deleteSelectedObjects();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", (e) => {
+      handleKeyDown({
+        e,
+        canvas,
+        syncShapeInStorage,
+        deleteShapeFromStorage,
+        redo,
+        undo,
+      });
+    });
 
     return () => {
       canvas.dispose();
@@ -253,7 +267,16 @@ export default function Canvas() {
           canvas: null,
         });
       });
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", (e) => {
+        handleKeyDown({
+          e,
+          canvas,
+          syncShapeInStorage,
+          deleteShapeFromStorage,
+          redo,
+          undo,
+        });
+      });
     };
   }, [canvasRef, syncShapeInStorage]);
 
@@ -264,15 +287,15 @@ export default function Canvas() {
     }
   }, [lastUsedColor]);
 
-  const deleteSelectedObjects = () => {
-    if (fabricRef.current) {
-      fabricRef.current.getActiveObjects().forEach((obj) => {
-        fabricRef?.current?.remove(obj);
-      });
-      fabricRef.current.discardActiveObject().renderAll();
-      setSelectedObjects([]);
-    }
-  };
+  // const deleteSelectedObjects = () => {
+  //   if (fabricRef.current) {
+  //     fabricRef.current.getActiveObjects().forEach((obj) => {
+  //       fabricRef?.current?.remove(obj);
+  //     });
+  //     fabricRef.current.discardActiveObject().renderAll();
+  //     setSelectedObjects([]);
+  //   }
+  // };
 
   useEffect(() => {
     renderCanvas({
@@ -292,8 +315,8 @@ export default function Canvas() {
     >
       <canvas ref={canvasRef} className="rounded-md" />
       <Toolbar
-        strokeWidth={strokeWidth}
-        setStrokeWidth={setStrokeWidth}
+        // strokeWidth={strokeWidth}
+        // setStrokeWidth={setStrokeWidth}
         lastUsedColor={lastUsedColor}
         setLastUsedColor={setLastUsedColor}
         handleActiveElement={handleActiveElement}
