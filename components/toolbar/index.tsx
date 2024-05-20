@@ -3,14 +3,15 @@ import { Button } from "../ui/button";
 import { ActiveElement } from "@/types/types";
 
 import { defaultNavElement } from "@/constants";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ColorPicker from "./color-picker";
 
 type ToolbarProps = {
   // strokeWidth: number;
   // setStrokeWidth: (strokeWidth: number) => void;
-  lastUsedColor: string;
-  setLastUsedColor: (color: string) => void;
+  lastUsedColorRef: React.MutableRefObject<string>;
+  strokeWidthRef: React.MutableRefObject<number>;
+
   activeElement: ActiveElement;
   handleActiveElement: (element: ActiveElement) => void;
 };
@@ -18,11 +19,16 @@ type ToolbarProps = {
 export default function Toolbar({
   // strokeWidth,
   // setStrokeWidth,
-  lastUsedColor,
-  setLastUsedColor,
+  lastUsedColorRef,
+  strokeWidthRef,
+
   handleActiveElement,
   activeElement,
 }: ToolbarProps) {
+  const [strokeWidth, setStrokeWidth] = useState(5);
+
+  const [lastUsedColor, setLastUsedColor] = useState("#000000");
+
   const isActive = (value: string | Array<ActiveElement>) =>
     (activeElement && activeElement.value === value) ||
     (Array.isArray(value) &&
@@ -31,6 +37,14 @@ export default function Toolbar({
   useEffect(() => {
     console.log("active element changed: ", activeElement);
   }, [activeElement]);
+
+  useEffect(() => {
+    lastUsedColorRef.current = lastUsedColor;
+  }, [lastUsedColor, lastUsedColorRef]);
+
+  useEffect(() => {
+    strokeWidthRef.current = strokeWidth;
+  }, [strokeWidth, strokeWidthRef]);
 
   return (
     <div className="fixed bottom-2 transform -translate-x-1/2 left-1/2 bg-gray-50 p-3 shadow-3xl rounded-md">

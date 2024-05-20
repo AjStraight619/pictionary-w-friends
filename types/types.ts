@@ -109,6 +109,11 @@ export interface CustomFabricObject<T extends fabric.Object>
   objectId?: string;
 }
 
+export type UpdateShapeColor = {
+  canvas: fabric.Canvas;
+  color: string;
+};
+
 export type ModifyShape = {
   canvas: fabric.Canvas;
   property: string;
@@ -170,8 +175,6 @@ export type CanvasMouseDown = {
   selectedShapeRef: any;
   isDrawing: React.MutableRefObject<boolean>;
   shapeRef: React.MutableRefObject<fabric.Object | null>;
-  // lastUsedColor: string;
-  // strokeWidth: number;
 };
 
 export type CanvasMouseMove = {

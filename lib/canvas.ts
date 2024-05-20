@@ -44,9 +44,7 @@ export const handleCanvasMouseDown = ({
   selectedShapeRef,
   isDrawing,
   shapeRef,
-}: // lastUsedColor,
-// strokeWidth,
-CanvasMouseDown) => {
+}: CanvasMouseDown) => {
   // get pointer coordinates
   const pointer = canvas.getPointer(options.e);
 
@@ -66,7 +64,6 @@ CanvasMouseDown) => {
     isDrawing.current = true;
     canvas.isDrawingMode = true;
     canvas.freeDrawingBrush.width = 5;
-
     return;
   }
 

@@ -8,14 +8,7 @@ import {
   useStorage,
   useUndo,
 } from "@/liveblocks.config";
-// import {
-//   handleCanvasMouseDown,
-//   handlePathCreated,
-//   handleResize,
-//   handleCanvasMouseUp,
-//   handleCanvaseMouseMove,
-//   handleSelection,
-// } from "@/lib/canvas2";
+
 import Toolbar from "../toolbar";
 import { ActiveElement, Attributes } from "@/types/types";
 import { defaultNavElement } from "@/constants";
@@ -31,6 +24,7 @@ import {
   renderCanvas,
 } from "@/lib/canvas";
 import { handleKeyDown } from "@/lib/key-events";
+import { updateSelectedObjectsColor } from "@/lib/shapes";
 
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -51,20 +45,14 @@ export default function Canvas() {
   const [isFloatingToolbarVisible, setIsFloatingToolbarVisible] =
     useState(false);
 
-  const [strokeWidth, setStrokeWidth] = useState(5);
-
-  const [lastUsedColor, setLastUsedColor] = useState("#000000");
-
   const [activeElement, setActiveElement] = useState<ActiveElement>({
     name: "",
     value: "",
     icon: <div />,
   });
 
-  const others = useOthersMapped((other) => ({
-    cursor: other.presence.cursor,
-    isDrawing: other.presence.isDrawing,
-  }));
+  const lastUsedColorRef = useRef("#000000");
+  const strokeWidthRef = useRef(5);
 
   const canvasObjects = useStorage((root) => root.canvasObjects);
 
@@ -100,20 +88,21 @@ export default function Canvas() {
     stroke: "#aabbcc",
   });
 
-  const updateSelectedObjectsColor = (color: string) => {
-    if (fabricRef.current) {
-      const selectedObjects = fabricRef.current.getActiveObjects();
-      selectedObjects.forEach((obj) => {
-        if (obj instanceof fabric.Path) {
-          obj.set("stroke", color);
-        } else {
-          obj.set("fill", color);
-          obj.set("stroke", color);
-        }
-      });
-      fabricRef.current.renderAll();
-    }
-  };
+  // const updateSelectedObjectsColor = (color: string) => {
+  //   if (fabricRef.current) {
+  //     const selectedObjects = fabricRef.current.getActiveObjects();
+  //     if (selectedObjects.length === 0) return;
+  //     selectedObjects.forEach((obj) => {
+  //       if (obj instanceof fabric.Path) {
+  //         obj.set("stroke", color);
+  //       } else {
+  //         obj.set("fill", color);
+  //         obj.set("stroke", color);
+  //       }
+  //     });
+  //     fabricRef.current.renderAll();
+  //   }
+  // };
 
   const handleActiveElement = (elem: ActiveElement) => {
     setActiveElement(elem);
@@ -175,6 +164,8 @@ export default function Canvas() {
       canvasRef,
     });
 
+    setActiveElement(defaultNavElement);
+
     canvas.on("mouse:down", (options) => {
       handleCanvasMouseDown({
         canvas,
@@ -182,7 +173,6 @@ export default function Canvas() {
         isDrawing,
         selectedShapeRef,
         shapeRef,
-        // lastUsedColor,
         // strokeWidth,
       });
     });
@@ -239,6 +229,7 @@ export default function Canvas() {
     });
 
     canvas.on("selection:updated", (options) => {
+      console.log("selection updated");
       const newObjects = options.selected as fabric.Object[];
       setSelectedObjects((prevObjects) => [...prevObjects, ...newObjects]);
     });
@@ -278,14 +269,24 @@ export default function Canvas() {
         });
       });
     };
-  }, [canvasRef, syncShapeInStorage]);
+  }, [canvasRef, deleteShapeFromStorage, redo, syncShapeInStorage, undo]);
 
-  useEffect(() => {
-    if (fabricRef.current) {
-      fabricRef.current.freeDrawingBrush.color = lastUsedColor;
-      updateSelectedObjectsColor(lastUsedColor);
-    }
-  }, [lastUsedColor]);
+  // useEffect(() => {
+  //   if (fabricRef.current) {
+  //     fabricRef.current.freeDrawingBrush.color = lastUsedColor;
+
+  //     updateSelectedObjectsColor({
+  //       color: lastUsedColor,
+  //       canvas: fabricRef.current,
+  //     });
+  //   }
+  // }, [lastUsedColor]);
+
+  // useEffect(() => {
+  //   if (fabricRef.current) {
+  //     fabricRef.current.freeDrawingBrush.width = strokeWidth;
+  //   }
+  // }, [strokeWidth]);
 
   // const deleteSelectedObjects = () => {
   //   if (fabricRef.current) {
@@ -317,8 +318,8 @@ export default function Canvas() {
       <Toolbar
         // strokeWidth={strokeWidth}
         // setStrokeWidth={setStrokeWidth}
-        lastUsedColor={lastUsedColor}
-        setLastUsedColor={setLastUsedColor}
+        lastUsedColorRef={lastUsedColorRef}
+        strokeWidthRef={strokeWidthRef}
         handleActiveElement={handleActiveElement}
         activeElement={activeElement}
       />

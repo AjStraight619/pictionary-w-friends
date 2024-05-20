@@ -6,6 +6,7 @@ import {
   ElementDirection,
   ImageUpload,
   ModifyShape,
+  UpdateShapeColor,
 } from "@/types/types";
 
 export const createRectangle = (
@@ -158,3 +159,22 @@ export const modifyShape = ({
 
 //   // re-render all objects on the canvas
 // };
+
+export const updateSelectedObjectsColor = ({
+  color,
+  canvas,
+}: UpdateShapeColor) => {
+  if (canvas) {
+    const selectedObjects = canvas.getActiveObjects();
+    if (selectedObjects.length === 0) return;
+    selectedObjects.forEach((obj) => {
+      if (obj instanceof fabric.Path) {
+        obj.set("stroke", color);
+      } else {
+        obj.set("fill", color);
+        obj.set("stroke", color);
+      }
+    });
+    canvas.renderAll();
+  }
+};
