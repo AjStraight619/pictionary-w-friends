@@ -1,27 +1,25 @@
 import { toolbarElements } from "@/constants";
 import { Button } from "../ui/button";
 import { ActiveElement } from "@/types/types";
+import { fabric } from "fabric";
 
 import { defaultNavElement } from "@/constants";
 import { useEffect, useState } from "react";
 import ColorPicker from "./color-picker";
+import { updateSelectedObjectsColor } from "@/lib/shapes";
 
 type ToolbarProps = {
-  // strokeWidth: number;
-  // setStrokeWidth: (strokeWidth: number) => void;
+  canvas: fabric.Canvas | null;
   lastUsedColorRef: React.MutableRefObject<string>;
   strokeWidthRef: React.MutableRefObject<number>;
-
   activeElement: ActiveElement;
   handleActiveElement: (element: ActiveElement) => void;
 };
 
 export default function Toolbar({
-  // strokeWidth,
-  // setStrokeWidth,
+  canvas,
   lastUsedColorRef,
   strokeWidthRef,
-
   handleActiveElement,
   activeElement,
 }: ToolbarProps) {
@@ -35,12 +33,12 @@ export default function Toolbar({
       value.some((val) => val?.value === activeElement?.value));
 
   useEffect(() => {
-    console.log("active element changed: ", activeElement);
-  }, [activeElement]);
-
-  useEffect(() => {
     lastUsedColorRef.current = lastUsedColor;
-  }, [lastUsedColor, lastUsedColorRef]);
+    updateSelectedObjectsColor({
+      canvas,
+      lastUsedColor: lastUsedColorRef.current,
+    });
+  }, [lastUsedColor, lastUsedColorRef, canvas]);
 
   useEffect(() => {
     strokeWidthRef.current = strokeWidth;

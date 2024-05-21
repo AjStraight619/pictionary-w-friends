@@ -10,15 +10,15 @@ import {
 } from "@/types/types";
 
 export const createRectangle = (
-  pointer: PointerEvent
-  // lastUsedColor: string
+  pointer: PointerEvent,
+  lastUsedColor: string
 ) => {
   const rect = new fabric.Rect({
     left: pointer.x,
     top: pointer.y,
     width: 100,
     height: 100,
-    // fill: "#FFF000",
+    fill: lastUsedColor,
     objectId: nanoid(),
   } as CustomFabricObject<fabric.Rect>);
 
@@ -26,25 +26,25 @@ export const createRectangle = (
 };
 
 export const createTriangle = (
-  pointer: PointerEvent
-  // lastUsedColor: string
+  pointer: PointerEvent,
+  lastUsedColor: string
 ) => {
   return new fabric.Triangle({
     left: pointer.x,
     top: pointer.y,
     width: 100,
     height: 100,
-    // fill: lastUsedColor,
+    fill: lastUsedColor,
     objectId: nanoid(),
   } as CustomFabricObject<fabric.Triangle>);
 };
 
-export const createCircle = (pointer: PointerEvent) => {
+export const createCircle = (pointer: PointerEvent, lastUsedColor: string) => {
   return new fabric.Circle({
     left: pointer.x,
     top: pointer.y,
     radius: 100,
-    // fill: lastUsedColor,
+    fill: lastUsedColor,
     objectId: nanoid(),
   } as any);
 };
@@ -73,19 +73,21 @@ export const createCircle = (pointer: PointerEvent) => {
 // };
 
 export const createSpecificShape = (
+  lastUsedColor: string,
   shapeType: string,
   pointer: PointerEvent
 ) => {
   console.log("shape type: ", shapeType);
+  console.log("last used color: ", lastUsedColor);
   switch (shapeType) {
     case "rectangle":
-      return createRectangle(pointer);
+      return createRectangle(pointer, lastUsedColor);
 
     case "triangle":
-      return createTriangle(pointer);
+      return createTriangle(pointer, lastUsedColor);
 
     case "circle":
-      return createCircle(pointer);
+      return createCircle(pointer, lastUsedColor);
 
     default:
       return null;
@@ -95,15 +97,15 @@ export const createSpecificShape = (
 export const createShape = (
   canvas: fabric.Canvas,
   pointer: PointerEvent,
-  shapeType: string
-  // lastUsedColor: string
+  shapeType: string,
+  lastUsedColor: string
 ) => {
   if (shapeType === "freeform") {
     canvas.isDrawingMode = true;
     return null;
   }
 
-  return createSpecificShape(shapeType, pointer);
+  return createSpecificShape(lastUsedColor, shapeType, pointer);
 };
 
 export const modifyShape = ({
@@ -161,7 +163,7 @@ export const modifyShape = ({
 // };
 
 export const updateSelectedObjectsColor = ({
-  color,
+  lastUsedColor,
   canvas,
 }: UpdateShapeColor) => {
   if (canvas) {
@@ -169,10 +171,10 @@ export const updateSelectedObjectsColor = ({
     if (selectedObjects.length === 0) return;
     selectedObjects.forEach((obj) => {
       if (obj instanceof fabric.Path) {
-        obj.set("stroke", color);
+        obj.set("stroke", lastUsedColor);
       } else {
-        obj.set("fill", color);
-        obj.set("stroke", color);
+        obj.set("fill", lastUsedColor);
+        obj.set("stroke", lastUsedColor);
       }
     });
     canvas.renderAll();

@@ -1,6 +1,10 @@
 import { BaseUserMeta, User } from "@liveblocks/client";
 import { Gradient, Pattern } from "fabric/fabric-impl";
 
+import { fabric } from "fabric";
+import { Prisma } from "@prisma/client";
+import { getPlayerRooms } from "@/actions/getData";
+
 export type WordDifficulty = "easy" | "medium" | "hard";
 
 export enum CursorMode {
@@ -15,7 +19,11 @@ export type Word = {
   wordDifficulty: WordDifficulty;
 };
 
-export type Message = {
+export type UserRooms = {
+  userRooms: Prisma.PromiseReturnType<typeof getPlayerRooms>;
+};
+
+export type MessageType = {
   id: string;
   userId: string;
   username: string;
@@ -110,8 +118,8 @@ export interface CustomFabricObject<T extends fabric.Object>
 }
 
 export type UpdateShapeColor = {
-  canvas: fabric.Canvas;
-  color: string;
+  canvas: fabric.Canvas | null;
+  lastUsedColor: string;
 };
 
 export type ModifyShape = {
@@ -175,6 +183,8 @@ export type CanvasMouseDown = {
   selectedShapeRef: any;
   isDrawing: React.MutableRefObject<boolean>;
   shapeRef: React.MutableRefObject<fabric.Object | null>;
+  lastUsedColorRef: React.MutableRefObject<string>;
+  strokeWidthRef: React.MutableRefObject<number>;
 };
 
 export type CanvasMouseMove = {

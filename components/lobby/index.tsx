@@ -70,7 +70,7 @@ export default function Lobby() {
   }, [others, self]);
 
   return (
-    <Card className="select-none">
+    <Card className="select-none self-start">
       <CardHeader>
         <CardTitle>Players</CardTitle>
       </CardHeader>
@@ -86,9 +86,36 @@ export default function Lobby() {
                 idx={idx}
               />
             ))}
+            <>
+              {testUsers.map((user, idx) => (
+                <li key={idx}>{user.name}</li>
+              ))}
+            </>
           </ul>
         )}
       </CardContent>
     </Card>
   );
 }
+
+const testUsers = [
+  {
+    name: "John",
+  },
+  {
+    name: "John",
+  },
+  {
+    name: "John",
+  },
+
+  {
+    name: "John",
+  },
+  {
+    name: "John",
+  },
+  {
+    name: "John",
+  },
+];

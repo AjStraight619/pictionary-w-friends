@@ -1,3 +1,4 @@
+import { getPlayerRooms } from "@/actions/getData";
 import Topnav from "@/components/landing-page/topnav";
 
 import { Liveblocks, RoomInfo } from "@liveblocks/node";

@@ -1,3 +1,4 @@
+"use client";
 import Lobby from "@/components/lobby/index";
 import Chat from "./chat";
 import Canvas from "./canvas/canvas";

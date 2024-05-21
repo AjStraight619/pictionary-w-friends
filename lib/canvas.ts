@@ -44,6 +44,8 @@ export const handleCanvasMouseDown = ({
   selectedShapeRef,
   isDrawing,
   shapeRef,
+  lastUsedColorRef,
+  strokeWidthRef,
 }: CanvasMouseDown) => {
   // get pointer coordinates
   const pointer = canvas.getPointer(options.e);
@@ -63,7 +65,8 @@ export const handleCanvasMouseDown = ({
   if (selectedShapeRef.current === "freeform") {
     isDrawing.current = true;
     canvas.isDrawingMode = true;
-    canvas.freeDrawingBrush.width = 5;
+    canvas.freeDrawingBrush.width = strokeWidthRef.current;
+    canvas.freeDrawingBrush.color = lastUsedColorRef.current;
     return;
   }
 
@@ -90,7 +93,7 @@ export const handleCanvasMouseDown = ({
 
     // create custom fabric object/shape and set it to shapeRef
     shapeRef.current = createSpecificShape(
-      // lastUsedColor,
+      lastUsedColorRef.current,
       selectedShapeRef.current,
       pointer as any
     );

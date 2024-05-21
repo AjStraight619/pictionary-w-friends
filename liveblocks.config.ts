@@ -7,7 +7,7 @@ import {
 import { createRoomContext, createLiveblocksContext } from "@liveblocks/react";
 import {
   Cursor,
-  Message,
+  MessageType,
   PlayerColor,
   Round,
   UserState,
@@ -15,7 +15,26 @@ import {
 } from "./types/types";
 
 const client = createClient({
-  authEndpoint: "/api/liveblocks-auth",
+  authEndpoint: async (room) => {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    const body = JSON.stringify({ room });
+
+    const response = await fetch("/api/liveblocks-auth", {
+      method: "POST",
+      headers,
+      body,
+    });
+
+    if (response.status === 401) {
+      window.location.href = "/sign-in";
+    }
+
+    return await response.json();
+  },
+
   throttle: 16,
   backgroundKeepAliveTimeout: 15 * 60 * 1000,
   lostConnectionTimeout: 5000,
@@ -84,7 +103,7 @@ type Storage = {
   canvasObjects: LiveMap<string, any>;
   scores: LiveMap<string, number>;
   round: LiveObject<Round>;
-  messages: LiveList<LiveObject<Message>>;
+  messages: LiveList<LiveObject<MessageType>>;
   playerStates: LiveMap<string, LiveObject<UserState>>;
 };
 

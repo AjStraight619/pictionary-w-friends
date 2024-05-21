@@ -8,13 +8,16 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Input } from "../ui/input";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { LiveObject } from "@liveblocks/client";
-import { Message } from "@/types/types";
+import { MessageType } from "@/types/types";
 import { nanoid } from "nanoid";
 import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
+import { IndividualMessage } from "./message";
+import { SendIcon } from "lucide-react";
+import MessageInput from "./message-input";
 
 const containerVariants = {
   hidden: {
@@ -34,7 +37,7 @@ const messageVariants = {
   visible: { opacity: 1, x: 0, transition: { duration: 0.3 } },
 };
 
-type UserGuessType = {
+export type UserGuessType = {
   messageId: string;
   isClose: boolean;
   isCorrect: boolean;
@@ -57,13 +60,6 @@ export default function Chat() {
 
   const isCorrect = (message: string) => {
     return message.toUpperCase() === testWord;
-  };
-
-  const isCloseGuess = (message: string) => {
-    testWord.split("").forEach((char, idx) => {
-      if (message.toUpperCase()[idx]) {
-      }
-    });
   };
 
   const sliceEndOfWord = () => {
@@ -108,7 +104,7 @@ export default function Chat() {
         return upperMessage.includes(partialTestWord);
       })();
 
-    const newMessage = new LiveObject<Message>({
+    const newMessage = new LiveObject<MessageType>({
       id: nanoid(),
       userId: self.id,
       content: isCorrectGuess
@@ -128,16 +124,24 @@ export default function Chat() {
       isClose: isCloseGuess,
       isCorrect: isCorrectGuess,
     });
+    setInput("");
   }, []);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key !== "Enter") return;
-    sendMessage(input.trim());
-    setInput("");
-  };
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      sendMessage(input.trim());
+      setInput("");
+    },
+    [input, sendMessage]
+  );
+
+  const handleInputChange = useCallback((input: string) => {
+    setInput(input);
+  }, []);
 
   return (
-    <Card className="w-[14rem] h-[20rem] flex flex-col">
+    <Card className="w-[14rem] h-[calc(50%)] flex flex-col">
       <CardHeader>
         <CardTitle>Chat</CardTitle>
         <Button onClick={clearMessages}>Clear</Button>
@@ -152,27 +156,11 @@ export default function Chat() {
             className="px-2 flex flex-col gap-y-1 w-full"
           >
             {messages.map((msg) => (
-              <motion.li
-                className="text-wrap"
+              <IndividualMessage
                 key={msg.id}
-                variants={messageVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <span className="font-bold">{msg.username}:</span>{" "}
-                <span
-                  className={` ${
-                    userGuess.isCorrect && userGuess.messageId === msg.id
-                      ? "text-green-500"
-                      : userGuess.isClose && userGuess.messageId === msg.id
-                      ? "text-yellow-500"
-                      : ""
-                  }
-            `}
-                >
-                  {msg.content}
-                </span>
-              </motion.li>
+                message={msg}
+                userGuess={userGuess}
+              />
             ))}
           </motion.ul>
           <div ref={bottomOfMessagesRef} />
@@ -180,10 +168,25 @@ export default function Chat() {
       </ScrollArea>
 
       <CardFooter className="mt-auto">
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => handleKeyDown(e)}
+        {/* <div className="relative">
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e)}
+          />
+          <Button
+            size="sm"
+            variant="ghost"
+            className="absolute right-1 top-1/2 transform -translate-y-1/2"
+          >
+            <SendIcon size={20} />
+          </Button>
+        </div> */}
+        <MessageInput
+          input={input}
+          handleInputChange={handleInputChange}
+          handleKeyDown={handleKeyDown}
+          onClick={sendMessage}
         />
       </CardFooter>
     </Card>
