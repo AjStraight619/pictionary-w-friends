@@ -1,30 +1,7 @@
-"use client";
-import Lobby from "@/components/lobby/index";
-import Chat from "./chat";
-import Canvas from "./canvas/canvas";
-import Words from "./words";
 import { useMutation, useSelf, useStorage } from "@/liveblocks.config";
-import useInterval from "@/hooks/useInterval";
-import { useState } from "react";
-import { Button } from "./ui/button";
+import useInterval from "./useInterval";
 
-export const Live = () => {
-  const timerStarted = useStorage((root) => root.timer.timeStarted);
-  return (
-    <div className="h-screen relative overflow-hidden">
-      {/* <GameTimer /> */}
-
-      <div className="flex items-center gap-x-2 p-2 h-full">
-        {/* <Words /> */}
-        {/* <Lobby /> */}
-        <Canvas />
-        {/* <Chat /> */}
-      </div>
-    </div>
-  );
-};
-
-function GameTimer() {
+export function useTimer(timerId: string) {
   const myId = useSelf((me) => me.id);
   const playerStates = useStorage((root) => root.playerStates);
 
@@ -59,15 +36,4 @@ function GameTimer() {
     storage.get("timer").set("time", 60);
     storage.get("timer").set("timeStarted", false);
   }, []);
-
-  return (
-    <div className="absolute bottom-2 left-2 flex items-center gap-x-2">
-      {leader?.id === myId && (
-        <>
-          <span>{timeInfo.time}</span>
-          <Button onClick={startTimer}>Start Timer</Button>
-        </>
-      )}
-    </div>
-  );
 }

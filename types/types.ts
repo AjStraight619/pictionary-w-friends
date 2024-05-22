@@ -38,12 +38,23 @@ export type Round = {
   roundLimit: number;
 };
 
+export type Timer = {
+  time: number;
+  timeStarted: boolean;
+};
+
 export type UserState = {
   id: string;
   isDrawing: boolean;
   score: number;
   color: string;
   timeJoined: number;
+  isLeader: boolean;
+};
+
+export type GameState = {
+  isGameStarted: boolean;
+  isGameOver: boolean;
 };
 
 export type PlayerColor = {

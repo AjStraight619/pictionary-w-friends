@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { RoomProvider } from "@/liveblocks.config";
 import { ClientSideSuspense } from "@liveblocks/react";
 import { LiveList, LiveMap, LiveObject } from "@liveblocks/client";
-import { MessageType, UserState } from "@/types/types";
+import { GameState, MessageType, Timer, UserState } from "@/types/types";
 
 type RoomProps = {
   children: ReactNode;
@@ -28,6 +28,8 @@ export function Room({ children, roomId }: RoomProps) {
         round: new LiveObject(),
         messages: new LiveList<LiveObject<MessageType>>(),
         playerStates: new LiveMap<string, LiveObject<UserState>>(),
+        gameState: new LiveObject<GameState>(),
+        timer: new LiveObject<Timer>(),
       }}
     >
       <ClientSideSuspense fallback={<div>Loading…</div>}>

@@ -7,18 +7,21 @@ export const handleCopy = (canvas: fabric.Canvas) => {
   const activeObjects = canvas.getActiveObjects();
   if (activeObjects.length > 0) {
     // Serialize the selected objects
+    console.log("active objects: ", activeObjects);
+    console.log("active objects length: ", activeObjects.length);
     const serializedObjects = activeObjects.map((obj) => obj.toObject());
     // Store the serialized objects in the clipboard
     localStorage.setItem("clipboard", JSON.stringify(serializedObjects));
   }
-
-  return activeObjects;
 };
 
 export const handlePaste = (
   canvas: fabric.Canvas,
   syncShapeInStorage: (shape: fabric.Object) => void
+  // lastUsedColor: string
 ) => {
+  console.log("handlePaste called");
+
   if (!canvas || !(canvas instanceof fabric.Canvas)) {
     console.error("Invalid canvas object. Aborting paste operation.");
     return;
@@ -27,31 +30,35 @@ export const handlePaste = (
   // Retrieve serialized objects from the clipboard
   const clipboardData = localStorage.getItem("clipboard");
 
+  console.log("clipboard data: ", clipboardData);
+
   if (clipboardData) {
     try {
       const parsedObjects = JSON.parse(clipboardData);
-      parsedObjects.forEach((objData: fabric.Object) => {
-        // convert the plain javascript objects retrieved from localStorage into fabricjs objects (deserialization)
-        fabric.util.enlivenObjects(
-          [objData],
-          (enlivenedObjects: fabric.Object[]) => {
-            enlivenedObjects.forEach((enlivenedObj) => {
-              // Offset the pasted objects to avoid overlap with existing objects
-              enlivenedObj.set({
-                left: enlivenedObj.left || 0 + 20,
-                top: enlivenedObj.top || 0 + 20,
-                objectId: nanoid(),
-                fill: "#aabbcc",
-              } as CustomFabricObject<any>);
+      console.log("parsed objects: ", parsedObjects);
 
-              canvas.add(enlivenedObj);
-              syncShapeInStorage(enlivenedObj);
-            });
-            canvas.renderAll();
-          },
-          "fabric"
-        );
-      });
+      fabric.util.enlivenObjects(
+        parsedObjects,
+        (enlivenedObjects: fabric.Object[]) => {
+          console.log("enlivened objects: ", enlivenedObjects);
+
+          enlivenedObjects.forEach((enlivenedObj) => {
+            enlivenedObj.set({
+              left: (enlivenedObj.left ?? 0) + 20,
+              top: (enlivenedObj.top ?? 0) + 20,
+              objectId: nanoid(),
+              fill: "#000000",
+            } as CustomFabricObject<any>);
+
+            console.log("adding object to canvas: ", enlivenedObj);
+
+            canvas.add(enlivenedObj);
+            syncShapeInStorage(enlivenedObj);
+          });
+          canvas.renderAll();
+        },
+        "fabric"
+      );
     } catch (error) {
       console.error("Error parsing clipboard data:", error);
     }
@@ -70,6 +77,7 @@ export const handleDelete = (
       if (!obj.objectId) return;
       canvas.remove(obj);
       deleteShapeFromStorage(obj.objectId);
+      localStorage.removeItem("clipboard");
     });
   }
 
@@ -78,23 +86,27 @@ export const handleDelete = (
 };
 
 // create a handleKeyDown function that listen to different keydown events
-export const handleKeyDown = ({
+export const handleKeyUp = ({
   e,
   canvas,
   undo,
   redo,
   syncShapeInStorage,
   deleteShapeFromStorage,
-}: {
+}: // lastUsedColor,
+{
   e: KeyboardEvent;
   canvas: fabric.Canvas | any;
   undo: () => void;
   redo: () => void;
   syncShapeInStorage: (shape: fabric.Object) => void;
   deleteShapeFromStorage: (id: string) => void;
+  // lastUsedColor: string;
 }) => {
+  console.log("handleKeyUp called with key: ", e.key);
   // Check if the key pressed is ctrl/cmd + c (copy)
   if ((e?.ctrlKey || e?.metaKey) && e.key === "c") {
+    console.log("copied shape in handleKeyDown: ");
     handleCopy(canvas);
   }
 
@@ -125,4 +137,8 @@ export const handleKeyDown = ({
   if (e.key === "/" && !e.shiftKey) {
     e.preventDefault();
   }
+};
+
+export const handleKeyUp2 = (e: React.KeyboardEvent) => {
+  console.log("key up event on: ", e.key);
 };

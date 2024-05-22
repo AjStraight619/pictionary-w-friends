@@ -60,7 +60,7 @@ export default function Words() {
             {char !== " " && <span>__</span>}
           </div>
         ))}
-        <Button className="ml-2">Reveal Indices</Button>
+        {/* <Button className="ml-2">Reveal Indices</Button> */}
       </div>
     );
   };
@@ -84,7 +84,7 @@ export default function Words() {
             {char !== " " && <span>__</span>}
           </div>
         ))}
-        <Button className="ml-2">Reveal Indices</Button>
+        {/* <Button className="ml-2">Reveal Indices</Button> */}
       </div>
     );
   };

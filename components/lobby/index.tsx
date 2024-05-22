@@ -13,6 +13,7 @@ import { LiveObject, User } from "@liveblocks/client";
 import { COLORS } from "@/constants";
 import Player from "./player";
 import { UserState } from "@/types/types";
+import { cn } from "@/lib/utils";
 
 export type Player = User<Presence, UserMeta>;
 const assignUniqueColor = (assignedColors: Set<string>) => {
@@ -25,7 +26,11 @@ const assignUniqueColor = (assignedColors: Set<string>) => {
   return COLORS[Math.floor(Math.random() * COLORS.length)];
 };
 
-export default function Lobby() {
+type LobbyProps = {
+  className?: string;
+};
+
+export default function Lobby({ className }: LobbyProps) {
   const self = useSelf();
   const others = useOthers();
 
@@ -44,6 +49,8 @@ export default function Lobby() {
         assignedColors.add(state.color);
       });
 
+      const isLeader = playerStatesImmutable.size === 0;
+
       const color = assignUniqueColor(assignedColors);
       const initialState = new LiveObject<UserState>({
         id: self.id,
@@ -51,6 +58,7 @@ export default function Lobby() {
         score: 0,
         color: color,
         timeJoined: Date.now(),
+        isLeader: isLeader,
       });
       playerStates.set(self.id, initialState);
     }
@@ -70,7 +78,7 @@ export default function Lobby() {
   }, [others, self]);
 
   return (
-    <Card className="select-none self-start">
+    <Card className={`select-none self-start ${className ? className : ""}`}>
       <CardHeader>
         <CardTitle>Players</CardTitle>
       </CardHeader>
@@ -86,36 +94,14 @@ export default function Lobby() {
                 idx={idx}
               />
             ))}
-            <>
+            {/* <>
               {testUsers.map((user, idx) => (
                 <li key={idx}>{user.name}</li>
               ))}
-            </>
+            </> */}
           </ul>
         )}
       </CardContent>
     </Card>
   );
 }
-
-const testUsers = [
-  {
-    name: "John",
-  },
-  {
-    name: "John",
-  },
-  {
-    name: "John",
-  },
-
-  {
-    name: "John",
-  },
-  {
-    name: "John",
-  },
-  {
-    name: "John",
-  },
-];

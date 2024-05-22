@@ -23,7 +23,7 @@ import {
   initializeFabric,
   renderCanvas,
 } from "@/lib/canvas";
-import { handleKeyDown } from "@/lib/key-events";
+import { handleKeyUp, handleKeyUp2 } from "@/lib/key-events";
 import { updateSelectedObjectsColor } from "@/lib/shapes";
 
 export default function Canvas() {
@@ -217,6 +217,7 @@ export default function Canvas() {
       console.log("selection updated");
       const newObjects = options.selected as fabric.Object[];
       setSelectedObjects((prevObjects) => [...prevObjects, ...newObjects]);
+      console.log("Selection updated: ", selectedObjects.length);
     });
 
     window.addEventListener("resize", () => {
@@ -225,45 +226,48 @@ export default function Canvas() {
       });
     });
 
-    window.addEventListener("keydown", (e) => {
-      handleKeyDown({
+    window.addEventListener("keyup", (e) => {
+      handleKeyUp({
         e,
         canvas,
         syncShapeInStorage,
         deleteShapeFromStorage,
         redo,
         undo,
+        // lastUsedColor: lastUsedColorRef.current,
       });
     });
 
     return () => {
+      console.log("cleanup function called");
       canvas.dispose();
       window.removeEventListener("resize", () => {
         handleResize({
           canvas: null,
         });
       });
-      window.removeEventListener("keydown", (e) => {
-        handleKeyDown({
+      window.removeEventListener("keyup", (e) => {
+        handleKeyUp({
           e,
           canvas,
           syncShapeInStorage,
           deleteShapeFromStorage,
           redo,
           undo,
+          // lastUsedColor: lastUsedColorRef.current,
         });
       });
     };
-  }, [canvasRef, deleteShapeFromStorage, redo, syncShapeInStorage, undo]);
+  }, [canvasRef]);
 
-  useEffect(() => {
-    if (fabricRef.current) {
-      updateSelectedObjectsColor({
-        canvas: fabricRef.current,
-        lastUsedColor: lastUsedColorRef.current,
-      });
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (fabricRef.current) {
+  //     updateSelectedObjectsColor({
+  //       canvas: fabricRef.current,
+  //       lastUsedColor: lastUsedColorRef.current,
+  //     });
+  //   }
+  // }, []);
 
   useEffect(() => {
     renderCanvas({
@@ -273,14 +277,12 @@ export default function Canvas() {
     });
   }, [canvasObjects]);
 
-  const onPointerMove = useMutation(({ setMyPresence, self }) => {}, []);
-
   return (
     <div
       className="relative flex flex-col h-[calc(50%)] w-full flex-1 items-center justify-center bg-gray-100 overflow-hidden rounded-md"
       id="canvas"
-      onPointerMove={onPointerMove}
     >
+      {" "}
       <canvas ref={canvasRef} className="rounded-md" />
       <Toolbar
         // strokeWidth={strokeWidth}

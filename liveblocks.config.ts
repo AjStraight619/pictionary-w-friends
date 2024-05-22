@@ -7,9 +7,11 @@ import {
 import { createRoomContext, createLiveblocksContext } from "@liveblocks/react";
 import {
   Cursor,
+  GameState,
   MessageType,
   PlayerColor,
   Round,
+  Timer,
   UserState,
   Word,
 } from "./types/types";
@@ -105,6 +107,8 @@ type Storage = {
   round: LiveObject<Round>;
   messages: LiveList<LiveObject<MessageType>>;
   playerStates: LiveMap<string, LiveObject<UserState>>;
+  gameState: LiveObject<GameState>;
+  timer: LiveObject<Timer>;
 };
 
 // Optionally, UserMeta represents static/readonly metadata on each user, as
